@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+      <!-- This page allows the user to tell the robot to sanitize the room-->
+    <title>Sentry Remote Controller</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  </head>
+  <body>
+    <body class="bg-light">  
+
+    <!-- Title-->
+    <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+    <!-- Brand -->
+    <a class="navbar-brand" href="#">UWI Sentry Remote Controller</a>
+
+    <!-- Links -->
+    <!--
+    <ul class="navbar-nav">
+        <li class="nav-item">
+        <a class="nav-link" id="reportspage" href="reportspage.html">Reports</a>
+        </li> 
+
+        Dropdown 
+        <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">
+            Settings
+        </a>
+        <div class="dropdown-menu">
+            <a class="dropdown-item" id="developerpage" href="developerpage.html">Developer Options</a>
+            <a class="dropdown-item" id="demopage" href="demopage.html">Demo Mode</a>
+        </div>
+        </li> 
+    </ul> -->
+    </nav>
+
+    <!-- Navbar-->
+    <!-- <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Menu
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+              <a class="dropdown-item" href="#">Settings</a>
+              <a class="dropdown-item" href="#">Sanitization Reports</a>
+            </div>
+        </div> 
+        <h3>UWI Sentry Remote Controller</h3>  
+    </nav> -->
+
+
+
+
+    <!-- Dropdown menu    
+    <div class="dropdown">
+        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Menu
+        </button>
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+          <a class="dropdown-item" href="#">Settings</a>
+          <a class="dropdown-item" href="#">Sanitization Reports</a>
+        </div>
+    </div>         -->
+
+    <!-- INFO -->
+    <div class="container">
+        <div class="row my-4">
+        <div class="col-md-2 "></div>
+        <div class="col-md-8">
+            <div class="alert alert-success">
+                <!--<h4 class="alert-heading col text-center">UWI Sentry Remote Control</h4> -->
+                <ul>
+                    <li>Ensure that there are no people in the room.</li>
+                    <li>Start sanitization process by pressing the button below.</li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-2"></div>
+        </div>       
+    </div>
+
+
+
+    <!-- Text-->
+    <div class="container">
+        <div class="row my-4">
+        <div class="col text-center">
+            <p id="progress">Percentage Complete: </p>
+        </div>
+        </div>  
+    </div>
+    
+
+
+    <!-- Text-->
+    <div class="container">
+        <div class="row my-4">
+        <div class="col text-center">
+            <p>Current Robot Status: </p>
+            <p id="status">Ready</p>
+        </div>
+        </div>  
+    </div>
+        
+    <!-- Buttons for control-->
+    <!-- <div class="container">
+        <div class="row my-4">
+            <div class="col text-center">
+                <button type="button" id="btn1" class="btn btn-outline-danger">Start Room Sanitation</button>
+            </div>
+        </div>
+    </div>
+
+   
+    <div class="container">
+        <div class="row my-4">
+        <div class="col text-center">
+            <button type="button" id="btn3" class="btn btn-warning btn-lg">Pause Room Sanitation</button>
+        </div>
+        </div>  
+    </div>    
+
+   
+    <div class="container">
+        <div class="row my-4">
+        <div class="col text-center">
+            <button type="button" id="btn2" class="btn btn-success btn-lg">Stop Room Sanitation</button>
+        </div>
+        </div>  
+    </div>
+
+    
+    <div class="container">
+        <div class="row my-4">
+        <div class="col text-center">
+            <button type="button" id="btn4" class="btn btn-dark btn-lg">Turn Off Sentry</button>
+        </div>
+        </div>  
+    </div> -->
+
+
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <!-- Buttons for control-->
+                <div class="container">
+                    <div class="row my-4">
+                        <div class="col text-center">
+                            <button type="button" id="btnStart" class="btn btn-outline-success btn-lg">Start Room Sanitation</button>
+                        </div>
+                    </div>
+                </div>                    
+            </div>
+            <div class="col">
+                <!-- Buttons for control-->
+                <div class="container">
+                    <div class="row my-4">
+                    <div class="col text-center">
+                        <button type="button" id="btnPause" class="btn btn-warning btn-lg">Pause Room Sanitation</button>
+                    </div>
+                    </div>  
+                </div>                
+            </div>
+            <div class="w-100"></div>
+            <div class="col">
+                <!-- Buttons for control-->
+                <div class="container">
+                    <div class="row my-4">
+                    <div class="col text-center">
+                        <button type="button" id="btnStop" class="btn btn-danger btn-lg">Stop Room Sanitation</button>
+                    </div>
+                    </div>  
+                </div>
+            </div>
+            <div class="col">
+                <!-- Buttons for control-->
+                <div class="container">
+                    <div class="row my-4">
+                    <div class="col text-center">
+                        <button type="button" id="btnOff" class="btn btn-dark btn-lg">Turn Off Sentry</button>
+                    </div>
+                    </div>  
+                </div>                     
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <!-- SPEED -->
+    <!-- <div class="container">
+        <div class="row my">
+        <div class="col-md-4"></div>
+        <div class=" col-md-4">
+            <label for="robot-speed">
+                <strong>Robot speed</strong>
+            </label>
+            <input type="range" min="15" max="80" class="custom-range" id="robot-speed">
+        </div>
+        <div class="col-md-4"></div>
+        </div>
+    </div>    
+ -->
+
+
+    <!-- JOYSTICK -->
+    <!-- <div class="container">
+        <div class="row my-4">
+        <div class="col">
+            <div class="d-flex justify-content-center" style="width: 210px; height: 210px;">
+                <div id="joystick"></div>
+            </div>
+        </div>
+        </div>
+    </div> -->
+
+    <div class="container">
+        <div class="col text-center">
+            <div class="fixed-bottom"> ARC LABS </div>
+        </div>
+    </div> 
+    
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+    <script src="/roslib.min.js"></script>
+    <script src="eventemitter2.min.js"></script>
+    <script src="https://static.robotwebtools.org/keyboardteleopjs/current/keyboardteleop.min.js"></script>
+    <script src="//yoannmoinet.github.io/nipplejs/javascripts/nipplejs.js"></script>
+    <script src="sanitizationpagewebui.js"></script>
+
+
+
+  </body>
+</html>
