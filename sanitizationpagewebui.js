@@ -73,6 +73,27 @@ function initButtonDataPublisher() {
 
 }
 
+
+
+//this Publisher is for the controlling of lights
+function initLightControl() {
+    // Init topic object
+    lightControl = new ROSLIB.Topic({
+        ros : ros,
+        name: '/lightControl',
+        messageType: 'std_msgs/Bool'
+    });
+    // Init message.
+    msg3 = new ROSLIB.Message({
+        data : false // It has to be data as written in the std_msgs docs
+    });
+
+    lightControl.advertise();
+
+}
+
+
+
 //This function tells the ROS node to initialize the counter
 function initPercent(){
     msg1.data="Initialize Counter";
@@ -83,6 +104,8 @@ function initPercent(){
 function publishStartSani() {
     msg1.data="Started Sanitizing the Room";
     brwsr.publish(msg1);
+    msg3.data=true;
+    lightControl.publish(msg3);
     firstStart = firstStart + 1;
     document.getElementById("status").innerHTML="Sanitizing the Room" ;
     if (firstStart == 1){
@@ -102,6 +125,8 @@ function publishStartSani() {
 function publishPauseSani() {
     msg1.data="Paused Sanitizing the Room";
     brwsr.publish(msg1);
+    msg3.data=false;
+    lightControl.publish(msg3);
     document.getElementById("btnStart").innerHTML="Restart Room Stanitizing";
     document.getElementById("status").innerHTML="Paused Sanitizing the Room" ;
 }
@@ -147,8 +172,11 @@ function publishPauseSani() {
 //This function tells the ROS node to stop the Sanitization
 function publishStopSani() {
     msg1.data="Stopped Sanitizing the Room";
+
     if (confirm("Stop Sanitizing the Room?")){
         brwsr.publish(msg1);
+        msg3.data=false;
+        lightControl.publish(msg3);
         document.getElementById("status").innerHTML="Stopped Sanitizing the Room" ;
         today = new Date();
         if (firstStart == 1){   
@@ -228,8 +256,11 @@ function publishStopSani() {
 
 function publishTurnOffSentry() {
     msg1.data="Turn Off Sentry";
+
     if (confirm("Turn off Sentry?")){
         brwsr.publish(msg1);
+        msg3.data=false;
+        lightControl.publish(msg3);
         document.getElementById("status").innerHTML="Sentry is off" ;
         today = new Date();
         if (firstStart == 1){   
@@ -424,6 +455,7 @@ window.onload = function () {
     initButtonDataPublisher();
     initPercent();
     initProgressSubscriber();
+    initLightControl()
 
   // createJoystick();
   //  initTeleopKeyboard();
