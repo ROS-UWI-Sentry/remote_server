@@ -36,7 +36,7 @@ function initButtonPublisher() {
     // Init topic object
     brwsr = new ROSLIB.Topic({
         ros : ros,
-        name: '/brwsrButtons',
+        name: '/sentry_control_topic',// name: '/brwsrButtons',
         messageType: 'std_msgs/String'
     });
     // Init message.
@@ -102,7 +102,7 @@ function initPercent(){
 
 //This function tells the ROS node to start the Sanitization
 function publishStartSani() {
-    msg1.data="Started Sanitizing the Room";
+    msg1.data="start_sanitization";
     brwsr.publish(msg1);
     msg3.data=true;
     lightControl.publish(msg3);
@@ -123,7 +123,7 @@ function publishStartSani() {
 
 //This function Tells the ROS node to pause the Sanitization
 function publishPauseSani() {
-    msg1.data="Paused Sanitizing the Room";
+    msg1.data="pause_sanitization";
     brwsr.publish(msg1);
     msg3.data=false;
     lightControl.publish(msg3);
@@ -171,7 +171,7 @@ function publishPauseSani() {
 
 //This function tells the ROS node to stop the Sanitization
 function publishStopSani() {
-    msg1.data="Stopped Sanitizing the Room";
+    msg1.data="stop_sanitization";
 
     if (confirm("Stop Sanitizing the Room?")){
         brwsr.publish(msg1);
@@ -255,7 +255,7 @@ function publishStopSani() {
 //At this point it is the same to the Stop Sanitization, the changes will be made later on
 
 function publishTurnOffSentry() {
-    msg1.data="Turn Off Sentry";
+    msg1.data="turn_off_sentry";
 
     if (confirm("Turn off Sentry?")){
         brwsr.publish(msg1);
