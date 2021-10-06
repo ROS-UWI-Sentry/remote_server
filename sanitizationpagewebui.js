@@ -308,9 +308,10 @@ function initProgressSubscriber() {
 
 //This function displays the percent value received from the ROS node
 function displayPercentageSani(message) {
-    progress=document.getElementById("progress").innerHTML = "Percentage Complete: " + message.data;
+    progress=document.getElementById("progress").innerHTML = "Time elapsed: " + message.data + "seconds";
     percentage = message.data;
     console.log(percentage);
+    //!!!!change this to when all goals reached
     if (percentage=="100"){
         msg2.data="Complete";
         brwsrReport.publish(msg2);
@@ -321,94 +322,112 @@ function displayPercentageSani(message) {
     //what about when it changes?
 }
 
-// function initVelocityPublisher() {
-//     // Init message with zero values.
-//     twist = new ROSLIB.Message({
-//         linear: {
-//             x: 0,
-//             y: 0,
-//             z: 0
-//         },
-//         angular: {
-//             x: 0,
-//             y: 0,
-//             z: 0
-//         }
-//     });
-//     // Init topic object
-//     cmdVel = new ROSLIB.Topic({
-//         ros: ros,
-//         name: '/turtle1/cmd_vel',
-//         messageType: 'geometry_msgs/Twist'
-//     });
-//     // Register publisher within ROS system
-//     cmdVel.advertise();
-// }
 
-// function initTeleopKeyboard() {
-//     // Use w, s, a, d keys to drive your robot
 
-//     // Check if keyboard controller was aready created
-//     if (teleop == null) {
-//         // Initialize the teleop.
-//         teleop = new KEYBOARDTELEOP.Teleop({
-//             ros: ros,
-//             topic: '/turtle1/cmd_vel'
-//         });
-//     }
 
-//     // Add event listener for slider moves
-//     robotSpeedRange = document.getElementById("robot-speed");
-//     robotSpeedRange.oninput = function () {
-//         teleop.scale = robotSpeedRange.value / 100
-//     }
-// }
+//This function is for status reporting of the robot
+function initStatusSubscriber() {
+    statusListener = new ROSLIB.Topic({
+    ros : ros,
+    name : '/status',
+    messageType : 'std_msgs/String'
 
-// function createJoystick() {
-//     // Check if joystick was aready created
-//     if (manager == null) {
-//         joystickContainer = document.getElementById('joystick');
-//         // joystck configuration, if you want to adjust joystick, refer to:
-//         // https://yoannmoinet.github.io/nipplejs/
-//         var options = {
-//             zone: joystickContainer,
-//             position: { left: 50 + '%', top: 105 + 'px' },
-//             mode: 'static',
-//             size: 200,
-//             color: '#0066ff',
-//             restJoystick: true
-//         };
-//         manager = nipplejs.create(options);
-//         // event listener for joystick move
-//         manager.on('move', function (evt, nipple) {
-//             // nipplejs returns direction is screen coordiantes
-//             // we need to rotate it, that dragging towards screen top will move robot forward
-//             var direction = nipple.angle.degree - 90;
-//             if (direction > 180) {
-//                 direction = -(450 - nipple.angle.degree);
-//             }
-//             // convert angles to radians and scale linear and angular speed
-//             // adjust if youwant robot to drvie faster or slower
-//             var lin = Math.cos(direction / 57.29) * nipple.distance * 0.005;
-//             var ang = Math.sin(direction / 57.29) * nipple.distance * 0.05;
-//             // nipplejs is triggering events when joystic moves each pixel
-//             // we need delay between consecutive messege publications to 
-//             // prevent system from being flooded by messages
-//             // events triggered earlier than 50ms after last publication will be dropped 
-//             if (publishImmidiately) {
-//                 publishImmidiately = false;
-//                 moveAction(lin, ang);
-//                 setTimeout(function () {
-//                     publishImmidiately = true;
-//                 }, 50);
-//             }
-//         });
-//         // event litener for joystick release, always send stop message
-//         manager.on('end', function () {
-//             moveAction(0, 0);
-//         });
-//     }
-// }
+});
+}
+
+function displayStatus(message){
+    document.getElementById("status").innerHTML=message.data;
+    console.log(message.data);
+}
+
+/* function initVelocityPublisher() {
+    // Init message with zero values.
+    twist = new ROSLIB.Message({
+        linear: {
+            x: 0,
+            y: 0,
+            z: 0
+        },
+        angular: {
+            x: 0,
+            y: 0,
+            z: 0
+        }
+    });
+    // Init topic object
+    cmdVel = new ROSLIB.Topic({
+        ros: ros,
+        name: '/turtle1/cmd_vel',
+        messageType: 'geometry_msgs/Twist'
+    });
+    // Register publisher within ROS system
+    cmdVel.advertise();
+}
+
+function initTeleopKeyboard() {
+    // Use w, s, a, d keys to drive your robot
+
+    // Check if keyboard controller was aready created
+    if (teleop == null) {
+        // Initialize the teleop.
+        teleop = new KEYBOARDTELEOP.Teleop({
+            ros: ros,
+            topic: '/turtle1/cmd_vel'
+        });
+    }
+
+    // Add event listener for slider moves
+    robotSpeedRange = document.getElementById("robot-speed");
+    robotSpeedRange.oninput = function () {
+        teleop.scale = robotSpeedRange.value / 100
+    }
+}
+
+function createJoystick() {
+    // Check if joystick was aready created
+    if (manager == null) {
+        joystickContainer = document.getElementById('joystick');
+        // joystck configuration, if you want to adjust joystick, refer to:
+        // https://yoannmoinet.github.io/nipplejs/
+        var options = {
+            zone: joystickContainer,
+            position: { left: 50 + '%', top: 105 + 'px' },
+            mode: 'static',
+            size: 200,
+            color: '#0066ff',
+            restJoystick: true
+        };
+        manager = nipplejs.create(options);
+        // event listener for joystick move
+        manager.on('move', function (evt, nipple) {
+            // nipplejs returns direction is screen coordiantes
+            // we need to rotate it, that dragging towards screen top will move robot forward
+            var direction = nipple.angle.degree - 90;
+            if (direction > 180) {
+                direction = -(450 - nipple.angle.degree);
+            }
+            // convert angles to radians and scale linear and angular speed
+            // adjust if youwant robot to drvie faster or slower
+            var lin = Math.cos(direction / 57.29) * nipple.distance * 0.005;
+            var ang = Math.sin(direction / 57.29) * nipple.distance * 0.05;
+            // nipplejs is triggering events when joystic moves each pixel
+            // we need delay between consecutive messege publications to 
+            // prevent system from being flooded by messages
+            // events triggered earlier than 50ms after last publication will be dropped 
+            if (publishImmidiately) {
+                publishImmidiately = false;
+                moveAction(lin, ang);
+                setTimeout(function () {
+                    publishImmidiately = true;
+                }, 50);
+            }
+        });
+        // event litener for joystick release, always send stop message
+        manager.on('end', function () {
+            moveAction(0, 0);
+        });
+    }
+} */
 
 
 
@@ -420,6 +439,11 @@ function displayPercentageSani(message) {
 
 
 window.onload = function () {
+
+    alert("You are about to start the Disinfection Process! \r\nPlease ensure that you have left the room and closed the door before continuing.");
+
+        
+
     //so that we can know when start is pressed for the first time
     
     firstStart = 0; 
@@ -438,10 +462,13 @@ window.onload = function () {
     //console prints out the connection to ROS  
     ros.on('connection', function() {
       console.log('Connected to websocket server.');
+      document.getElementById("status").innerHTML="Connected to Sentry Robot.";
+
     });
     
     ros.on('error', function(error) {
       console.log('Error connecting to websocket server: ', error);
+      document.getElementById("status").innerHTML="Error! Not connected to Sentry Robot, Turn off and retry.";
     });
     
     ros.on('close', function() {
@@ -453,8 +480,9 @@ window.onload = function () {
 
     initButtonPublisher();
     initButtonDataPublisher();
-    initPercent();
+    //initPercent();
     initProgressSubscriber();
+    initStatusSubscriber();
     initLightControl()
 
   // createJoystick();
@@ -467,7 +495,11 @@ window.onload = function () {
 
     });
 
-    alert("You are about to start the Disinfection Process! \r\nPlease ensure that you have left the room and closed the door before continuing.");
+    statusListener.subscribe(function(message){
+        displayStatus(message);
+    });
+
+    //alert("You are about to start the Disinfection Process! \r\nPlease ensure that you have left the room and closed the door before continuing.");
 
         
 
