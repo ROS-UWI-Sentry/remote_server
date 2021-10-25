@@ -1,3 +1,7 @@
+// This page provides functionality to the user to sanitize the room
+
+
+
 var twist;
 var cmdVel;
 var publishImmidiately = true;
@@ -26,28 +30,33 @@ var percentage = 0;
 //     cmdVel.publish(twist);
 // }
 
-// This page provides functionality to the user to sanitize the room
+
 
 
 
 //this function initializes the publisher functionality
+//the same as the tutorial
 
 function initButtonPublisher() {
-    // Init topic object
+    // Initialize topic object
     brwsr = new ROSLIB.Topic({
         ros : ros,
         name: '/sentry_control_topic',// name: '/brwsrButtons',
         messageType: 'std_msgs/String'
     });
-    // Init message.
+    // Initialize message.
     msg1 = new ROSLIB.Message({
-        data :"Sanitization Started" // It has to be data as written in the std_msgs docs
+        // It has to be same data type as written in the std_msgs docs
+        data :"Sanitization Started" 
     });
 
+
     brwsr.advertise();
-    //initialize counter:
     
-    //listen to button presses
+    
+    //following code listens to the buttons on the page 
+    //if they are pressed a function is called
+    //placed in this function to run when the function is called at startup
     
     document.getElementById("btnStart").onclick = publishStartSani;
     document.getElementById("btnStop").onclick = publishStopSani;
@@ -57,16 +66,19 @@ function initButtonPublisher() {
 }
 
 //this Publisher is for the storage of santization data
+//it facilitates communication with a ROS node
+//that node reads an writes to a text file
 function initButtonDataPublisher() {
-    // Init topic object
+    // Initialize topic object
     brwsrReport = new ROSLIB.Topic({
         ros : ros,
         name: '/brwsrButtonsData',
         messageType: 'std_msgs/String'
     });
-    // Init message.
+    // Initialize message.
     msg2 = new ROSLIB.Message({
-        data :"Initial Data" // It has to be data as written in the std_msgs docs
+        // It has to be data as written in the std_msgs docs
+        data :"Initial Data" 
     });
 
     brwsrReport.advertise();
@@ -76,6 +88,8 @@ function initButtonDataPublisher() {
 
 
 //this Publisher is for the controlling of lights
+//it is not used in the final remote
+//the state machine replaces this functionality 
 function initLightControl() {
     // Init topic object
     lightControl = new ROSLIB.Topic({
@@ -95,39 +109,63 @@ function initLightControl() {
 
 
 //This function tells the ROS node to initialize the counter
+//it is not used in the final remote
+//it was used for testing
 function initPercent(){
     msg1.data="Initialize Counter";
     brwsr.publish(msg1);
 }
 
-//This function tells the ROS node to start the Sanitization
+//This function tells the ROS state machine to start the Sanitization
 function publishStartSani() {
+    //this sets the value of data inside the msg1 object
     msg1.data="start_sanitization";
+    //the brwsr object publishes the message stored by msg1 
+    //to its predefined topic
     brwsr.publish(msg1);
+
+    //msg3 is published by lightControl object
     msg3.data=true;
     lightControl.publish(msg3);
+
+    //the global variable firstStart is incremented 
+    //this allows certain code to run only when the first time start is pressed
     firstStart = firstStart + 1;
+    //this updates the status HTML element 
     document.getElementById("status").innerHTML="Sanitizing the Room" ;
+
+    //if this is the first time start is pressed this if statement
+    //publishes the year, month, date, hours and minutes to a ROS Node
+    //using the brwsrReport object
     if (firstStart == 1){
+        //create new object to store the current date and time
         today = new Date();
-        //msg2.data="Started";
-       // brwsrReport.publish(msg2);
+        //publish the year, month and date
         msg2.data=String(today.getFullYear())+'-'+String((today.getMonth()+1))+'-'+String(today.getDate());
         brwsrReport.publish(msg2);
+        //publish the hours and minutes
         msg2.data=String(today.getHours())+ ":"+String((today.getMinutes()<10?'0':'')+today.getMinutes());
         brwsrReport.publish(msg2);
     } else {
-        //do nothing
+        //do nothing if this is not the first time start is pressed
     };
 }
 
-//This function Tells the ROS node to pause the Sanitization
+//This function Tells the ROS state machine to pause the Sanitization
 function publishPauseSani() {
+    //this sets the value of data inside the msg1 object
     msg1.data="pause_sanitization";
+    //the brwsr object publishes the message stored by msg1 
+    //to its predefined topic    
     brwsr.publish(msg1);
+
+    //msg3 is published by lightControl object
     msg3.data=false;
     lightControl.publish(msg3);
+
+    //the text value on the start button is changed from start to restart
     document.getElementById("btnStart").innerHTML="Restart Room Stanitizing";
+    //this updates the status HTML element
     document.getElementById("status").innerHTML="Paused Sanitizing the Room" ;
 }
 
@@ -169,23 +207,43 @@ function publishPauseSani() {
     };
 } */
 
-//This function tells the ROS node to stop the Sanitization
+//This function tells the ROS state machine to stop the Sanitization
 function publishStopSani() {
+    //this sets the value of data inside the msg1 object
     msg1.data="stop_sanitization";
 
     if (confirm("Stop Sanitizing the Room?")){
+        //if the user confirms with the popup to stop,
+        //the brwsr object publishes the message stored by msg1 
+        //to its predefined topic        
         brwsr.publish(msg1);
+
+        //msg3 is published by lightControl object    
         msg3.data=false;
         lightControl.publish(msg3);
+
+        //this updates the status HTML element     
         document.getElementById("status").innerHTML="Stopped Sanitizing the Room" ;
+
+        //create new object to store the current date and time        
         today = new Date();
+
+        //if the start button was pressed once
         if (firstStart == 1){   
+            //if the completion of the sanitization is less than 100%
+            //publish that it was incomplete
+            //along with the hours and minutes that the button was pressed
             if(percentage<100){
                 msg2.data="Incomplete" + " "+String(percentage) + "%";
                 brwsrReport.publish(msg2);
                 msg2.data=String(today.getHours())+":"+String((today.getMinutes()<10?'0':'')+today.getMinutes());
                 brwsrReport.publish(msg2);
-            };  
+            }; 
+        //if the start button was not pressed 
+        //publish that it didn't run 
+        //along with the year, month, date, hours and minutes
+        //this is because if the user never pressed start,
+        //the time and date would never be published
         } else if (firstStart==0){
             msg2.data="Did Not Run,";
             brwsrReport.publish(msg2);
@@ -194,7 +252,8 @@ function publishStopSani() {
             msg2.data=String(today.getHours())+ ":"+String((today.getMinutes()<10?'0':'')+today.getMinutes());
             brwsrReport.publish(msg2);
        
-        
+        //if the start button was pressed more than once
+        // do the same as if it was presseed once
         } else if (firstStart>1){
             if(percentage<100){
                 msg2.data="Incomplete" + " "+String(percentage) + "%";
@@ -202,13 +261,16 @@ function publishStopSani() {
                 msg2.data=String(today.getHours())+ ":"+String((today.getMinutes()<10?'0':'')+today.getMinutes());
                 brwsrReport.publish(msg2);
             };
+            
         };
+        //cleanly close the ROS connections with ROSBridge
         brwsr.unadvertise();
         brwsrReport.unadvertise();
         ros.close();
+        //go to the homepage
         document.location.href= "homepage.html";
     } else {
-
+        //do nothing if the user cancels the popup
     };
 }
 
@@ -251,8 +313,9 @@ function publishStopSani() {
 } */
 
 
-//This function tells the ROS node to stop the Sanitization
-//At this point it is the same to the Stop Sanitization, the changes will be made later on
+//This function tells the ROS state machine to stop the Sanitization
+//At this point it is the same to the Stop Sanitization, the changes will be made later on 
+//read the comments for stop sentry for the explination
 
 function publishTurnOffSentry() {
     msg1.data="turn_off_sentry";
@@ -298,6 +361,7 @@ function publishTurnOffSentry() {
 
 
 //this function initializes the subscriber functionality
+//it listens to a progress value on the topic /progress
 function initProgressSubscriber() {
     progressListener = new ROSLIB.Topic({
     ros : ros,
@@ -306,6 +370,8 @@ function initProgressSubscriber() {
 });
 }
 
+//the progress functionality needs to be changed
+//due to the fact that I don't know how long the robot takes to move and sanitize
 //This function displays the percent value received from the ROS node
 function displayPercentageSani(message) {
     progress=document.getElementById("progress").innerHTML = "Time elapsed: " + message.data + "seconds";
@@ -326,6 +392,8 @@ function displayPercentageSani(message) {
 
 
 //This function is for status reporting of the robot
+// it listens to the /status topic and displays it on the screen
+// for the user to know whats going on
 function initStatusSubscriber() {
     statusListener = new ROSLIB.Topic({
     ros : ros,
@@ -335,6 +403,7 @@ function initStatusSubscriber() {
 });
 }
 
+//this function is called when a new message is received on status
 function displayStatus(message){
     document.getElementById("status").innerHTML=message.data;
     console.log(message.data);
@@ -444,22 +513,26 @@ window.onload = function () {
 
         
 
-    //so that we can know when start is pressed for the first time
+    //firstStart variable is used so that we can 
+    //know when start is pressed for the first time
+    //this is usefull for recording of the time and date when pressed
+    //and not be written over when start is pressed after pressing pause
     
     firstStart = 0; 
-    console.log(firstStart);
-    // determine robot address automatically
+
+    
+    //To determine the robot address automatically
      robot_IP = location.hostname;
     // set robot address statically
     //robot_IP = "10.5.10.117";
 
-    // // Init handle for rosbridge_websocket
+    // // Initialize handle for rosbridge_websocket 
     ros = new ROSLIB.Ros({
         url: "ws://" + robot_IP + ":9090"
     });
 
 
-    //console prints out the connection to ROS  
+    //console prints out the connection status to ROS  
     ros.on('connection', function() {
       console.log('Connected to websocket server.');
       document.getElementById("status").innerHTML="Connected to Sentry Robot.";
@@ -488,13 +561,15 @@ window.onload = function () {
   // createJoystick();
   //  initTeleopKeyboard();
    
-//This is called by rosbridge when a message is sent to this node asynchronously  
+    //This is called by rosbridge when a message is received by this subscriber node asynchronously  
     progressListener.subscribe(function(message) {
     displayPercentageSani(message);
  //   progressListener.unsubscribe();
 
     });
 
+
+    //This is called by rosbridge when a message is received by this subscriber node asynchronously
     statusListener.subscribe(function(message){
         displayStatus(message);
     });
