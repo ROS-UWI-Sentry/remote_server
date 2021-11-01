@@ -65,6 +65,21 @@ function initButtonPublisher() {
 
 }
 
+function initHeartbeatPublisher(){
+    //Initialize topic object
+    connection = new ROSLIB.Topic({
+        ros : ros,
+        name: '/heartbeat_rx',
+        messageType: 'std_msgs/String'
+    });
+    //Initialize message.
+    msgConnection = new ROSLIB.Message({
+        // It has to be same data type as written in the std_msgs docs
+        data : "initial data" 
+    });
+
+}
+
 //this Publisher is for the storage of santization data
 //it facilitates communication with a ROS node
 //that node reads an writes to a text file
@@ -370,6 +385,14 @@ function initProgressSubscriber() {
 });
 }
 
+function initHeartbeatSubscriber() {
+    heartbeatListener = new ROSLIB.Topic({
+    ros : ros,
+    name : '/heartbeat_tx',
+    messageType : 'std_msgs/String'    
+});
+}
+
 //the progress functionality needs to be changed
 //due to the fact that I don't know how long the robot takes to move and sanitize
 //This function displays the percent value received from the ROS node
@@ -553,9 +576,11 @@ window.onload = function () {
 
     initButtonPublisher();
     initButtonDataPublisher();
+    initHeartbeatPublisher();
     //initPercent();
     initProgressSubscriber();
     initStatusSubscriber();
+    initHeartbeatSubscriber();
     initLightControl()
 
   // createJoystick();
@@ -567,6 +592,16 @@ window.onload = function () {
  //   progressListener.unsubscribe();
 
     });
+
+
+    //This is called by rosbridge when a message is received by this subscriber node asynchronously  
+    heartbeatListener.subscribe(function(message) {
+        if (message.data =="connection_test"){
+            msgConnection.data = "connected";
+            connection.publish(msgConnection);
+        }
+    });    
+
 
 
     //This is called by rosbridge when a message is received by this subscriber node asynchronously
