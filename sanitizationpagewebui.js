@@ -17,6 +17,8 @@ var progressListener;
 var firstStart;
 var today
 var percentage = 0;
+var first_time_heartbeat_cb_run =false;
+var confrimMessage;
 //var listPositionBool
 
 // function moveAction(linear, angular) {
@@ -530,6 +532,8 @@ function createJoystick() {
 // }
 
 
+
+
 window.onload = function () {
 
     alert("You are about to start the Disinfection Process! \r\nPlease ensure that you have left the room and closed the door before continuing.");
@@ -545,7 +549,7 @@ window.onload = function () {
 
     
     //To determine the robot address automatically
-     robot_IP = location.hostname;
+    robot_IP = location.hostname;
     // set robot address statically
     //robot_IP = "10.5.10.117";
 
@@ -556,6 +560,7 @@ window.onload = function () {
 
 
     //console prints out the connection status to ROS  
+    //this constantly checks the connections
     ros.on('connection', function() {
       console.log('Connected to websocket server.');
       document.getElementById("status").innerHTML="Connected to Sentry Robot.";
@@ -564,10 +569,33 @@ window.onload = function () {
     
     ros.on('error', function(error) {
       console.log('Error connecting to websocket server: ', error);
-      document.getElementById("status").innerHTML="Error! Not connected to Sentry Robot, Turn off and retry.";
+      //document.getElementById("status").innerHTML="Error! Not connected to Sentry Robot, Turn off and retry.";
+      
+      //When error occurs, pop up asking if to refresh the page or return home
+      confrimMessage = confirm("Error! Not connected to Sentry Robot! \r\nPress Ok to retry. \r\nPress Cancel to exit and return home. \r\nIf you Cancel Please wait 1 minute before entering the room with the Sentry robot, then restart it physically.");
+      if (confrimMessage==true){
+        //If user clicks OK
+        document.location.href= "sanitizationpage.html";
+      }  else {
+        //If used clicks Cancel
+        document.location.href= "homepage.html";  
+      }
+
     });
     
     ros.on('close', function() {
+
+      //document.getElementById("status").innerHTML="Error! Not connected to Sentry Robot, Turn off and retry.";
+     
+      //When error occurs, pop up asking if to refresh the page or return home
+      confrimMessage = confirm("Error! Not connected to Sentry Robot! \r\nPress Ok to retry. \r\nPress Cancel to exit and return home.");
+      if (confrimMessage==true){
+        //If user clicks OK
+        document.location.href= "sanitizationpage.html";
+      }  else {
+        //If used clicks Cancel
+        document.location.href= "homepage.html";  
+      }
       console.log('Connection to websocket server closed.');
     });
 
@@ -593,13 +621,16 @@ window.onload = function () {
 
     });
 
+ 
 
     //This is called by rosbridge when a message is received by this subscriber node asynchronously  
     heartbeatListener.subscribe(function(message) {
+        //check the message received
         if (message.data =="connection_test"){
+            //publish to the Robot that you received the message:
             msgConnection.data = "connected";
             connection.publish(msgConnection);
-        }
+        };
     });    
 
 
