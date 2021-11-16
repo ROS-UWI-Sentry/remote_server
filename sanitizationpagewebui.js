@@ -182,7 +182,7 @@ function publishPauseSani() {
 
     //the text value on the start button is changed from start to restart
     document.getElementById("btnStart").innerHTML="Restart Room Stanitizing";
-    //this updates the status HTML element
+    //this updates the status HTML status element
     document.getElementById("status").innerHTML="Paused Sanitizing the Room" ;
 }
 
@@ -429,10 +429,21 @@ function initStatusSubscriber() {
 }
 
 //this function is called when a new message is received on status
-function displayStatus(message){
-    document.getElementById("status").innerHTML=message.data;
-    console.log(message.data);
+//it determines what the message is and performs actions based on it
+function parseMessageReceived(message){
+    if (message.data=="human_detected_true"){
+        alert("A human was detected! \r\nThe UV lights are off \r\nPlease ensure that there is no one in the room. \r\nResume the sanitization when the room is confirmed empty.");
+        document.getElementById("status").innerHTML="A human was found in the room, restart when the room is confirmed empty."
+    } else {
+        document.getElementById("status").innerHTML=message.data;
+        console.log(message.data);
+    };
 }
+
+//this function is called to display status messages
+//function displayStatus(message){
+
+//}
 
 /* function initVelocityPublisher() {
     // Init message with zero values.
@@ -637,7 +648,8 @@ window.onload = function () {
 
     //This is called by rosbridge when a message is received by this subscriber node asynchronously
     statusListener.subscribe(function(message){
-        displayStatus(message);
+        parseMessageReceived(message);
+        //displayStatus(message);
     });
 
     //alert("You are about to start the Disinfection Process! \r\nPlease ensure that you have left the room and closed the door before continuing.");
