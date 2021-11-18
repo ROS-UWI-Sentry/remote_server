@@ -45,7 +45,7 @@ function initVelocityPublisher() {
     cmdVel = new ROSLIB.Topic({
         ros: ros,
         //this was cmd_vel before but for turtlesim it has to be changed
-        name: 'turtle1/cmd_vel',
+        name: 'cmd_vel',
         messageType: 'geometry_msgs/Twist'
     });
     // Register publisher within ROS system

@@ -1,14 +1,18 @@
-var tableData=[];
-var tbl;
-var loadCount =0;
-
 // this page provides functionality to request and generate the sanitization reports
 
 
 
+//to hold an array
+var tableData=[];
+//to hold a table object
+var tbl;
+//to help detect if data sent is null
+var loadCount =0;
+
+//***** Funtion Declarations *****
+
+
 //this function initializes the publisher functionality
-
-
 function initButtonPublisher() {
     // Init topic object
     brwsr = new ROSLIB.Topic({
@@ -24,15 +28,13 @@ function initButtonPublisher() {
     brwsr.advertise();
 
 
-
-
     //listen to button presses 
     document.getElementById("loadTable").onclick = loadTable;
     document.getElementById("clearTable").onclick = clearTable;
     
     }
 
-    //this function tells the ROS node to send the table data
+//this function tells the ROS node to send the table data
 function loadTable() {
   msg1.data="Send Report";
   brwsr.publish(msg1);
@@ -41,7 +43,6 @@ function loadTable() {
 
 //this function tells the ROS node to clear the table data
 function clearTable() {
-
   msg1.data="Clear Report";
   brwsr.publish(msg1);
   tbl.innerHTML ="";
@@ -57,19 +58,40 @@ function initProgressSubscriber() {
 });
 }
 
+
+//this funtion organises the data sent into a neat array
+function tableCleaner(messageData){
+  
+  var str="";
+  
+  //this looks for certain values to determine individual units of data
+  //so it can seperate them into an array
+  for (var i=0;i<messageData.length;i++){
+    if(messageData[i]!="[" && messageData[i]!="," && messageData[i]!="'" && messageData[i]!="]"){
+      str=str + messageData[i];
+      console.log(str);
+    }
+    else if (messageData[i]==","){
+      tableData.push(str);
+      
+      str="";      
+    }
+  }
+  //for the last value in the list to be added
+  tableData.push(str);    
+  str=""; 
+  
+}
+
 //this function creates a table with the data sent
 function generateTable(messageData){
-
   //call the function to clean up the data
   tableCleaner(messageData);
 
   tblRowCount = 0;
-
   //remove the current table, if any
 
- 
-
-//below is standard code for generating the table, from Mozilla
+  //below is standard code for generating the table, from Mozilla Developer Network
 
   //get the reference for the body
   var body = document.getElementsByTagName("body")[0];
@@ -145,32 +167,10 @@ function generateTable(messageData){
   tbl.appendChild(tblBody);
   body.appendChild(tbl);
   tbl.setAttribute("border","2");
-  
-  
+   
 }
 
-//this funtion organises the data sent into a neat array
-function tableCleaner(messageData){
-  
-  var str="";
-  
-  
-  for (var i=0;i<messageData.length;i++){
-    if(messageData[i]!="[" && messageData[i]!="," && messageData[i]!="'" && messageData[i]!="]"){
-      str=str + messageData[i];
-      console.log(str);
-    }
-    else if (messageData[i]==","){
-      tableData.push(str);
-      
-      str="";      
-    }
-  }
-  //for the last value in the list to be added
-  tableData.push(str);    
-  str=""; 
-  
-}
+
 
 window.onload = function () {
  
@@ -199,13 +199,13 @@ window.onload = function () {
     });
 
 
-
+    //***** Initialize publisher and subscriber *****
     initButtonPublisher();
 
     initProgressSubscriber();
 
 
-      //This is called by rosbridge when a message is sent to this node asynchronously
+    //This is called by rosbridge when a message is sent to this node asynchronously
     progressListener.subscribe(function(message) {
 
       console.log(message.data);
@@ -214,6 +214,7 @@ window.onload = function () {
         if(message.data=="[]"){
           alert("There is no saved sanitization data.")
         } else{
+          //Call this function and send it the received data
           generateTable(message.data);
         }
         

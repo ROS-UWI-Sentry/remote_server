@@ -1,40 +1,37 @@
 // This page provides functionality to the user to sanitize the room
 
 
-
+//unused
 var twist;
 var cmdVel;
 var publishImmidiately = true;
 var robot_IP;
 var manager;
 var teleop;
+//a ros variable for an instance of a ROSLIB object
 var ros;
+//a ros variable for hodling messages
 var msg1;
 var button1;
 var progress;
+//a ros variable for holding a topic
 var brwsr;
 var progressListener;
 var firstStart;
+//to hold the value of the today time
 var today
 var percentage = 0;
+//unused
 var first_time_heartbeat_cb_run =false;
-var confrimMessage;
-//var listPositionBool
-
-// function moveAction(linear, angular) {
-//     if (linear !== undefined && angular !== undefined) {
-//         twist.linear.x = linear;
-//         twist.angular.z = angular;
-//     } else {
-//         twist.linear.x = 0;
-//         twist.angular.z = 0;
-//     }
-//     cmdVel.publish(twist);
-// }
+//object to hold the result of the confirm
+var confirmMessage;
+//to know if the user initiated the shutdown or if a crash on ROSBridge occured
+var userInitiatedShutdown = 0;
 
 
 
 
+//**********Initialize Publishers**********
 
 //this function initializes the publisher functionality
 //the same as the tutorial
@@ -124,6 +121,81 @@ function initLightControl() {
 }
 
 
+//******Initialize Subscribers**********
+
+//this function initializes the subscriber functionality
+//it listens to a progress value on the topic /progress
+function initProgressSubscriber() {
+    //this creates a class object of type topic. 
+    //it allows us to subscribe to a topic
+    progressListener = new ROSLIB.Topic({
+    ros : ros,
+    name : '/progress',
+    messageType : 'std_msgs/Int32'
+});
+}
+
+function initHeartbeatSubscriber() {
+    //this creates a class object of type topic. 
+    //it allows us to subscribe to a topic
+    heartbeatListener = new ROSLIB.Topic({
+    ros : ros,
+    name : '/heartbeat_tx',
+    messageType : 'std_msgs/String'    
+});
+}
+
+//This function is for status reporting of the robot
+// it listens to the /status topic and displays it on the screen
+// for the user to know whats going on
+function initStatusSubscriber() {
+    //this creates a class object of type topic. 
+    //it allows us to subscribe to a topic
+    statusListener = new ROSLIB.Topic({
+    ros : ros,
+    name : '/status',
+    messageType : 'std_msgs/String'
+
+});
+}
+
+
+
+
+//******Other Function Declarations**********
+
+//the progress functionality needs to be changed
+//due to the fact that I don't know how long the robot takes to move and sanitize
+//This function displays the percent value received from the ROS node
+function displayPercentageSani(message) {
+    progress=document.getElementById("progress").innerHTML = "Time elapsed: " + message.data + "seconds";
+    percentage = message.data;
+    console.log(percentage);
+    //!!!!change this to when all goals reached
+    if (percentage=="100"){
+        msg2.data="Complete";
+        brwsrReport.publish(msg2);
+        msg2.data=String(today.getHours())+ ":" +String((today.getMinutes()<10?'0':'')+today.getMinutes());
+        brwsrReport.publish(msg2);
+    }
+    //progress=whatsubscriber receives?
+    //what about when it changes?
+}
+
+
+//this function is called when a new message is received on status
+//it determines what the message is and performs actions based on it
+function parseMessageReceived(message){
+    if (message.data=="human_detected_true"){
+        alert("A human was detected! \r\nThe UV lights are off \r\nPlease ensure that there is no one in the room. \r\nResume the sanitization when the room is confirmed empty.");
+        document.getElementById("status").innerHTML="A human was found in the room, restart when the room is confirmed empty."
+        //the text value on the start button is changed from start to restart
+        document.getElementById("btnStart").innerHTML="Restart Room Stanitizing";    
+    } else {
+        document.getElementById("status").innerHTML=message.data;
+        console.log(message.data);
+    };
+}
 
 //This function tells the ROS node to initialize the counter
 //it is not used in the final remote
@@ -135,6 +207,9 @@ function initPercent(){
 
 //This function tells the ROS state machine to start the Sanitization
 function publishStartSani() {
+    //the text value on the start button is changed from start to restart
+    document.getElementById("btnStart").disabled='disabled';
+        
     //this sets the value of data inside the msg1 object
     msg1.data="start_sanitization";
     //the brwsr object publishes the message stored by msg1 
@@ -170,6 +245,8 @@ function publishStartSani() {
 
 //This function Tells the ROS state machine to pause the Sanitization
 function publishPauseSani() {
+    //to reactivate the button
+    document.getElementById("btnStart").disabled='';
     //this sets the value of data inside the msg1 object
     msg1.data="pause_sanitization";
     //the brwsr object publishes the message stored by msg1 
@@ -186,50 +263,13 @@ function publishPauseSani() {
     document.getElementById("status").innerHTML="Paused Sanitizing the Room" ;
 }
 
-/* function publishStopSani() {
-    msg1.data="Stopped Sanitizing the Room";
-    if (confirm("Stop Sanitizing the Room?")){
-        brwsr.publish(msg1);
-        document.getElementById("status").innerHTML="Stopped Sanitizing the Room" ;
-        if (firstStart == 1){
-            today = new Date();
-            if(percentage<100){
-                localStorage.setItem(String(localStorage.length),String(today.getHours())+ ":" + String(today.getMinutes()));
-                localStorage.setItem(String(localStorage.length),"INCOMPLETE");
-            } else if (percentage==100){
-                localStorage.setItem(String(localStorage.length),String(today.getHours())+ ":" + String(today.getMinutes()));
-                localStorage.setItem(String(localStorage.length),"COMPLETE");
-            };  
-        } else if (firstStart==0){
-            today = new Date();
-            if(localStorage.length == 0){
-                localStorage.setItem(String(0),String(today.getFullYear())+'-'+String((today.getMonth()+1))+'-'+String(today.getDate()));
-                localStorage.setItem(String(localStorage.length),String(today.getHours())+ ":" + String(today.getMinutes()));
-                localStorage.setItem(String(localStorage.length),"NULL");
-                localStorage.setItem(String(localStorage.length),"Did not run");
-            } else {
-                localStorage.setItem(String(localStorage.length),String(today.getFullYear())+'-'+String((today.getMonth()+1))+'-'+String(today.getDate()));
-                localStorage.setItem(String(localStorage.length),String(today.getHours())+ ":" + String(today.getMinutes()));
-                localStorage.setItem(String(localStorage.length),"NULL");
-                localStorage.setItem(String(localStorage.length),"Did not run");
-                
-            };
-
-        };
-        brwsr.unadvertise();
-        ros.close();
-        document.location.href= "homepage.html";
-    } else {
-
-    };
-} */
 
 //This function tells the ROS state machine to stop the Sanitization
 function publishStopSani() {
     //this sets the value of data inside the msg1 object
     msg1.data="stop_sanitization";
 
-    if (confirm("Stop Sanitizing the Room?")){
+    if (confirm("Stop Sanitizing the Room and Reset Everything?")){
         //if the user confirms with the popup to stop,
         //the brwsr object publishes the message stored by msg1 
         //to its predefined topic        
@@ -270,7 +310,7 @@ function publishStopSani() {
             brwsrReport.publish(msg2);
        
         //if the start button was pressed more than once
-        // do the same as if it was presseed once
+        // do the same as if it was pressed once
         } else if (firstStart>1){
             if(percentage<100){
                 msg2.data="Incomplete" + " "+String(percentage) + "%";
@@ -280,54 +320,21 @@ function publishStopSani() {
             };
             
         };
+
+        //so that the ROSBridge connection test knows the user did this
+        userInitiatedShutdown=1;
+
         //cleanly close the ROS connections with ROSBridge
         brwsr.unadvertise();
         brwsrReport.unadvertise();
         ros.close();
-        //go to the homepage
-        document.location.href= "homepage.html";
+        
+        //refresh the page
+        document.location.href= "sanitizationpage.html";
     } else {
         //do nothing if the user cancels the popup
     };
 }
-
-/* function publishTurnOffSentry() {
-    msg1.data="Turn Off Sentry";
-    if (confirm("Turn off Sentry?")){
-        brwsr.publish(msg1);
-        document.getElementById("status").innerHTML="Sentry is off" ;
-        if (firstStart == 1){
-            today = new Date();
-            if(percentage<100){
-                localStorage.setItem(String(localStorage.length),String(today.getHours())+ ":" + String(today.getMinutes()));
-                localStorage.setItem(String(localStorage.length),"INCOMPLETE");
-            } else if (percentage==100){
-                localStorage.setItem(String(localStorage.length),String(today.getHours())+ ":" + String(today.getMinutes()));
-                localStorage.setItem(String(localStorage.length),"COMPLETE");
-            };  
-        } else if (firstStart==0){
-            today = new Date();
-            if(localStorage.length == 0){
-                localStorage.setItem(String(0),String(today.getFullYear())+'-'+String((today.getMonth()+1))+'-'+String(today.getDate()));
-                localStorage.setItem(String(localStorage.length),String(today.getHours())+ ":" + String(today.getMinutes()));
-                localStorage.setItem(String(localStorage.length),"NULL");
-                localStorage.setItem(String(localStorage.length),"Did not run");
-            } else {
-                localStorage.setItem(String(localStorage.length),String(today.getFullYear())+'-'+String((today.getMonth()+1))+'-'+String(today.getDate()));
-                localStorage.setItem(String(localStorage.length),String(today.getHours())+ ":" + String(today.getMinutes()));
-                localStorage.setItem(String(localStorage.length),"NULL");
-                localStorage.setItem(String(localStorage.length),"Did not run");
-                
-            };
-        };
-        brwsr.unadvertise();
-        ros.close();
-        document.location.href= "homepage.html";
-    } else {
-
-    };
-
-} */
 
 
 //This function tells the ROS state machine to stop the Sanitization
@@ -367,6 +374,9 @@ function publishTurnOffSentry() {
             };
         
         };
+        //so that the ROSBridge connection test knows the user did this
+        userInitiatedShutdown=1;
+
         brwsr.unadvertise();
         brwsrReport.unadvertise();
         ros.close();
@@ -376,177 +386,8 @@ function publishTurnOffSentry() {
 }
 
 
-
-//this function initializes the subscriber functionality
-//it listens to a progress value on the topic /progress
-function initProgressSubscriber() {
-    progressListener = new ROSLIB.Topic({
-    ros : ros,
-    name : '/progress',
-    messageType : 'std_msgs/Int32'
-});
-}
-
-function initHeartbeatSubscriber() {
-    heartbeatListener = new ROSLIB.Topic({
-    ros : ros,
-    name : '/heartbeat_tx',
-    messageType : 'std_msgs/String'    
-});
-}
-
-//the progress functionality needs to be changed
-//due to the fact that I don't know how long the robot takes to move and sanitize
-//This function displays the percent value received from the ROS node
-function displayPercentageSani(message) {
-    progress=document.getElementById("progress").innerHTML = "Time elapsed: " + message.data + "seconds";
-    percentage = message.data;
-    console.log(percentage);
-    //!!!!change this to when all goals reached
-    if (percentage=="100"){
-        msg2.data="Complete";
-        brwsrReport.publish(msg2);
-        msg2.data=String(today.getHours())+ ":" +String((today.getMinutes()<10?'0':'')+today.getMinutes());
-        brwsrReport.publish(msg2);
-    }
-    //progress=whatsubscriber receives?
-    //what about when it changes?
-}
-
-
-
-
-//This function is for status reporting of the robot
-// it listens to the /status topic and displays it on the screen
-// for the user to know whats going on
-function initStatusSubscriber() {
-    statusListener = new ROSLIB.Topic({
-    ros : ros,
-    name : '/status',
-    messageType : 'std_msgs/String'
-
-});
-}
-
-//this function is called when a new message is received on status
-//it determines what the message is and performs actions based on it
-function parseMessageReceived(message){
-    if (message.data=="human_detected_true"){
-        alert("A human was detected! \r\nThe UV lights are off \r\nPlease ensure that there is no one in the room. \r\nResume the sanitization when the room is confirmed empty.");
-        document.getElementById("status").innerHTML="A human was found in the room, restart when the room is confirmed empty."
-    } else {
-        document.getElementById("status").innerHTML=message.data;
-        console.log(message.data);
-    };
-}
-
-//this function is called to display status messages
-//function displayStatus(message){
-
-//}
-
-/* function initVelocityPublisher() {
-    // Init message with zero values.
-    twist = new ROSLIB.Message({
-        linear: {
-            x: 0,
-            y: 0,
-            z: 0
-        },
-        angular: {
-            x: 0,
-            y: 0,
-            z: 0
-        }
-    });
-    // Init topic object
-    cmdVel = new ROSLIB.Topic({
-        ros: ros,
-        name: '/turtle1/cmd_vel',
-        messageType: 'geometry_msgs/Twist'
-    });
-    // Register publisher within ROS system
-    cmdVel.advertise();
-}
-
-function initTeleopKeyboard() {
-    // Use w, s, a, d keys to drive your robot
-
-    // Check if keyboard controller was aready created
-    if (teleop == null) {
-        // Initialize the teleop.
-        teleop = new KEYBOARDTELEOP.Teleop({
-            ros: ros,
-            topic: '/turtle1/cmd_vel'
-        });
-    }
-
-    // Add event listener for slider moves
-    robotSpeedRange = document.getElementById("robot-speed");
-    robotSpeedRange.oninput = function () {
-        teleop.scale = robotSpeedRange.value / 100
-    }
-}
-
-function createJoystick() {
-    // Check if joystick was aready created
-    if (manager == null) {
-        joystickContainer = document.getElementById('joystick');
-        // joystck configuration, if you want to adjust joystick, refer to:
-        // https://yoannmoinet.github.io/nipplejs/
-        var options = {
-            zone: joystickContainer,
-            position: { left: 50 + '%', top: 105 + 'px' },
-            mode: 'static',
-            size: 200,
-            color: '#0066ff',
-            restJoystick: true
-        };
-        manager = nipplejs.create(options);
-        // event listener for joystick move
-        manager.on('move', function (evt, nipple) {
-            // nipplejs returns direction is screen coordiantes
-            // we need to rotate it, that dragging towards screen top will move robot forward
-            var direction = nipple.angle.degree - 90;
-            if (direction > 180) {
-                direction = -(450 - nipple.angle.degree);
-            }
-            // convert angles to radians and scale linear and angular speed
-            // adjust if youwant robot to drvie faster or slower
-            var lin = Math.cos(direction / 57.29) * nipple.distance * 0.005;
-            var ang = Math.sin(direction / 57.29) * nipple.distance * 0.05;
-            // nipplejs is triggering events when joystic moves each pixel
-            // we need delay between consecutive messege publications to 
-            // prevent system from being flooded by messages
-            // events triggered earlier than 50ms after last publication will be dropped 
-            if (publishImmidiately) {
-                publishImmidiately = false;
-                moveAction(lin, ang);
-                setTimeout(function () {
-                    publishImmidiately = true;
-                }, 50);
-            }
-        });
-        // event litener for joystick release, always send stop message
-        manager.on('end', function () {
-            moveAction(0, 0);
-        });
-    }
-} */
-
-
-
-// function pageChanger(){
-//     doucument.getElementById("btn3").onlcick = function () {
-//         location.href = "www.google.com";
-//     }
-// }
-
-
-
-
 window.onload = function () {
-
+    //warn the user:
     alert("You are about to start the Disinfection Process! \r\nPlease ensure that you have left the room and closed the door before continuing.");
 
         
@@ -571,48 +412,49 @@ window.onload = function () {
 
 
     //console prints out the connection status to ROS  
-    //this constantly checks the connections
+    //ros.on connection and close constantly checks the connections
     ros.on('connection', function() {
       console.log('Connected to websocket server.');
       document.getElementById("status").innerHTML="Connected to Sentry Robot.";
 
     });
     
-    ros.on('error', function(error) {
-      console.log('Error connecting to websocket server: ', error);
-      //document.getElementById("status").innerHTML="Error! Not connected to Sentry Robot, Turn off and retry.";
-      
-      //When error occurs, pop up asking if to refresh the page or return home
-      confrimMessage = confirm("Error! Not connected to Sentry Robot! \r\nPress Ok to retry. \r\nPress Cancel to exit and return home. \r\nIf you Cancel Please wait 1 minute before entering the room with the Sentry robot, then restart it physically.");
-      if (confrimMessage==true){
-        //If user clicks OK
-        document.location.href= "sanitizationpage.html";
-      }  else {
-        //If used clicks Cancel
-        document.location.href= "homepage.html";  
-      }
-
-    });
     
     ros.on('close', function() {
-
-      //document.getElementById("status").innerHTML="Error! Not connected to Sentry Robot, Turn off and retry.";
-     
-      //When error occurs, pop up asking if to refresh the page or return home
-      confrimMessage = confirm("Error! Not connected to Sentry Robot! \r\nPress Ok to retry. \r\nPress Cancel to exit and return home.");
-      if (confrimMessage==true){
-        //If user clicks OK
-        document.location.href= "sanitizationpage.html";
-      }  else {
-        //If used clicks Cancel
-        document.location.href= "homepage.html";  
-      }
       console.log('Connection to websocket server closed.');
+      //only do this if the user didn't initiate the shutdown
+      if(userInitiatedShutdown==0){
+        //When ROSBridge closes, pop up asking if to refresh the page or return home
+        confirmMessage = confirm("Error! Not connected to Sentry Robot! \r\nPress Ok to retry. \r\nPress Cancel to exit and return home. \r\nIf you Cancel Please wait 1 minute before entering the room with the Sentry robot, then restart it physically.");
+        if (confirmMessage==true){
+            //If user clicks OK
+            document.location.href= "sanitizationpage.html";
+        }  else {
+            //If used clicks Cancel
+            document.location.href= "homepage.html";  
+        }   
+    }
     });
 
- //   initVelocityPublisher();
-    // get handle for video placeholder
 
+
+    // ros.on('error', function(error) {
+    //     console.log('Error connecting to websocket server: ', error);
+    //     //When error occurs, pop up asking if to refresh the page or return home
+    //     confirmMessage = confirm("Error! Connection lost to Sentry Robot!");
+    //     if (confirmMessage==true){
+    //       //If user clicks OK
+    //       document.location.href= "sanitizationpage.html";
+    //     }  else {
+    //       //If used clicks Cancel
+    //       document.location.href= "homepage.html";  
+    //     }
+  
+    //   });
+
+
+
+    //***********Initialize publishers and subscribers *************
     initButtonPublisher();
     initButtonDataPublisher();
     initHeartbeatPublisher();
@@ -622,17 +464,18 @@ window.onload = function () {
     initHeartbeatSubscriber();
     initLightControl()
 
-  // createJoystick();
-  //  initTeleopKeyboard();
+
+
+    //*********** functions for listening to messages (subscribers)******** 
    
+    //these topics were initialised and here is where we define
+    //what happens when a message is received on the topics
+
     //This is called by rosbridge when a message is received by this subscriber node asynchronously  
     progressListener.subscribe(function(message) {
     displayPercentageSani(message);
- //   progressListener.unsubscribe();
-
     });
 
- 
 
     //This is called by rosbridge when a message is received by this subscriber node asynchronously  
     heartbeatListener.subscribe(function(message) {
@@ -649,12 +492,8 @@ window.onload = function () {
     //This is called by rosbridge when a message is received by this subscriber node asynchronously
     statusListener.subscribe(function(message){
         parseMessageReceived(message);
-        //displayStatus(message);
     });
-
-    //alert("You are about to start the Disinfection Process! \r\nPlease ensure that you have left the room and closed the door before continuing.");
-
-        
+ 
 
 
 };
