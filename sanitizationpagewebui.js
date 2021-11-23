@@ -209,6 +209,7 @@ function initPercent(){
 function publishStartSani() {
     //the text value on the start button is changed from start to restart
     document.getElementById("btnStart").disabled='disabled';
+    document.getElementById("btnPause").disabled='';
         
     //this sets the value of data inside the msg1 object
     msg1.data="start_sanitization";
@@ -247,6 +248,7 @@ function publishStartSani() {
 function publishPauseSani() {
     //to reactivate the button
     document.getElementById("btnStart").disabled='';
+    document.getElementById("btnPause").disabled='disabled';
     //this sets the value of data inside the msg1 object
     msg1.data="pause_sanitization";
     //the brwsr object publishes the message stored by msg1 
@@ -387,6 +389,10 @@ function publishTurnOffSentry() {
 
 
 window.onload = function () {
+    //before connection:
+    document.getElementById("btnStart").disabled='disabled';
+    document.getElementById("btnPause").disabled='disabled';
+    document.getElementById("btnStop").disabled='disabled';
     //warn the user:
     alert("You are about to start the Disinfection Process! \r\nPlease ensure that you have left the room and closed the door before continuing.");
 
@@ -416,7 +422,8 @@ window.onload = function () {
     ros.on('connection', function() {
       console.log('Connected to websocket server.');
       document.getElementById("status").innerHTML="Connected to Sentry Robot.";
-
+      document.getElementById("btnStart").disabled='';
+      document.getElementById("btnStop").disabled='';
     });
     
     
