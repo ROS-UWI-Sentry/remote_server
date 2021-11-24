@@ -189,8 +189,12 @@ function parseMessageReceived(message){
     if (message.data=="human_detected_true"){
         alert("A human was detected! \r\nThe UV lights are off \r\nPlease ensure that there is no one in the room. \r\nResume the sanitization when the room is confirmed empty.");
         document.getElementById("status").innerHTML="A human was found in the room, restart when the room is confirmed empty."
-        //the text value on the start button is changed from start to restart
-        document.getElementById("btnStart").innerHTML="Restart Room Stanitizing";    
+        //the text value on the start button is changed from start to continue
+        //can't refresh the page because we are continueing the same sanitization event
+        document.getElementById("btnStart").innerHTML="Continue Room Stanitizing";
+        document.getElementById("btnStart").disabled='';
+        document.getElementById("btnPause").disabled='';
+        document.getElementById("btnStop").disabled='';    
     } else {
         document.getElementById("status").innerHTML=message.data;
         console.log(message.data);
@@ -210,6 +214,7 @@ function publishStartSani() {
     //the text value on the start button is changed from start to restart
     document.getElementById("btnStart").disabled='disabled';
     document.getElementById("btnPause").disabled='';
+    document.getElementById("btnStop").disabled='';
         
     //this sets the value of data inside the msg1 object
     msg1.data="start_sanitization";
@@ -270,6 +275,8 @@ function publishPauseSani() {
 function publishStopSani() {
     //this sets the value of data inside the msg1 object
     msg1.data="stop_sanitization";
+    document.getElementById("btnPause").disabled='disabled';
+    document.getElementById("btnStop").disabled='disabled';
 
     if (confirm("Stop Sanitizing the Room and Reset Everything?")){
         //if the user confirms with the popup to stop,
@@ -423,7 +430,7 @@ window.onload = function () {
       console.log('Connected to websocket server.');
       document.getElementById("status").innerHTML="Connected to Sentry Robot.";
       document.getElementById("btnStart").disabled='';
-      document.getElementById("btnStop").disabled='';
+      
     });
     
     
