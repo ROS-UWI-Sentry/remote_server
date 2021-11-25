@@ -60,7 +60,7 @@ function initButtonPublisher() {
     document.getElementById("btnStart").onclick = publishStartSani;
     document.getElementById("btnStop").onclick = publishStopSani;
     document.getElementById("btnPause").onclick = publishPauseSani;
-    document.getElementById("btnOff").onclick = publishTurnOffSentry;
+    document.getElementById("btnOff").onclick = publishTurnOffSani;
 
 }
 
@@ -195,6 +195,12 @@ function parseMessageReceived(message){
         document.getElementById("btnStart").disabled='';
         document.getElementById("btnPause").disabled='';
         document.getElementById("btnStop").disabled='';    
+    }else if(message.data=="Sanitization Complete") {
+        document.getElementById("status").innerHTML=message.data;
+        console.log(message.data);
+        document.getElementById("btnStart").disabled='';
+        document.getElementById("btnPause").disabled='';
+        document.getElementById("btnStop").disabled='';           
     } else {
         document.getElementById("status").innerHTML=message.data;
         console.log(message.data);
@@ -350,8 +356,8 @@ function publishStopSani() {
 //At this point it is the same to the Stop Sanitization, the changes will be made later on 
 //read the comments for stop sentry for the explination
 
-function publishTurnOffSentry() {
-    msg1.data="turn_off_sentry";
+function publishTurnOffSani() {
+    msg1.data="turn_off_sanitization";
 
     if (confirm("Turn off Sentry?")){
         brwsr.publish(msg1);

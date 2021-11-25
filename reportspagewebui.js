@@ -196,6 +196,14 @@ window.onload = function () {
     
     ros.on('close', function() {
       console.log('Connection to websocket server closed.');
+      confirmMessage = confirm("Error! Not connected to Sentry Robot! \r\nPress Ok to retry. \r\nPress Cancel to exit and return home. \r\nIf you Cancel Please wait 1 minute before entering the room with the Sentry robot, then restart it physically.");
+      if (confirmMessage==true){
+          //If user clicks OK
+          document.location.href= "reportspage.html";
+      }  else {
+          //If used clicks Cancel
+          document.location.href= "homepage.html";  
+      }         
     });
 
 
