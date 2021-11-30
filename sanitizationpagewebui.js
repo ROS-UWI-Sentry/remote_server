@@ -233,8 +233,9 @@ function publishStartSani() {
     lightControl.publish(msg3);
 
     //the global variable firstStart is incremented 
-    //this allows certain code to run only when the first time start is pressed
+    //this allows certain code to run only when the start is pressed for the first time
     firstStart = firstStart + 1;
+    localStorage.setItem('firstStart',firstStart);
     //this updates the status HTML element 
     document.getElementById("status").innerHTML="Sanitizing the Room" ;
 
@@ -339,6 +340,9 @@ function publishStopSani() {
         //so that the ROSBridge connection test knows the user did this
         userInitiatedShutdown=1;
 
+        //clear the stored values of firstStart because the user is finished
+        localStorage.clear();
+
         //cleanly close the ROS connections with ROSBridge
         brwsr.unadvertise();
         brwsrReport.unadvertise();
@@ -391,7 +395,9 @@ function publishTurnOffSani() {
         };
         //so that the ROSBridge connection test knows the user did this
         userInitiatedShutdown=1;
-
+        //clear the stored values of firstStart because the user is finished
+        localStorage.clear();
+        //cleanly close the ROS connections with ROSBridge
         brwsr.unadvertise();
         brwsrReport.unadvertise();
         ros.close();
@@ -406,6 +412,9 @@ window.onload = function () {
     document.getElementById("btnStart").disabled='disabled';
     document.getElementById("btnPause").disabled='disabled';
     document.getElementById("btnStop").disabled='disabled';
+
+
+
     //warn the user:
     alert("You are about to start the Disinfection Process! \r\nPlease ensure that you have left the room and closed the door before continuing.");
 
@@ -416,7 +425,18 @@ window.onload = function () {
     //this is usefull for recording of the time and date when pressed
     //and not be written over when start is pressed after pressing pause
     
-    firstStart = 0; 
+    //check if the user already started a sanitization
+    //and if the page refreshed due to try reconnecting,
+    //we use local storage so that the data persists
+    //this initializes the variable firstStart based on whats stored
+    storedItem=localStorage.getItem('firstStart');
+    if (storedItem==null){
+        //if the user exits, stops or the sanitization is complete, this will be null
+        firstStart=0;
+    } else{
+        firstStart=parseInt(storedItem);
+    }
+
 
     
     //To determine the robot address automatically
@@ -429,6 +449,16 @@ window.onload = function () {
         url: "ws://" + robot_IP + ":9090"
     });
 
+    //***********Initialize publishers and subscribers *************
+    initButtonPublisher();
+    initButtonDataPublisher();
+    initHeartbeatPublisher();
+    //initPercent();
+    initProgressSubscriber();
+    initStatusSubscriber();
+    initHeartbeatSubscriber();
+    initLightControl()
+
 
     //console prints out the connection status to ROS  
     //ros.on connection and close constantly checks the connections
@@ -436,7 +466,8 @@ window.onload = function () {
       console.log('Connected to websocket server.');
       document.getElementById("status").innerHTML="Connected to Sentry Robot.";
       document.getElementById("btnStart").disabled='';
-      
+      msgConnection.data = "on_sanitization_page";
+
     });
     
     
@@ -448,8 +479,7 @@ window.onload = function () {
         confirmMessage = confirm("Error! Not connected to Sentry Robot! \r\nPress Ok to retry. \r\nPress Cancel to exit and return home. \r\nIf you Cancel Please wait 1 minute before entering the room with the Sentry robot, then restart it physically.");
         if (confirmMessage==true){
             //If user clicks OK
-            //Do nothing because this would reset stuff.
-                //document.location.href= "sanitizationpage.html";
+                document.location.href= "sanitizationpage.html";         
         }  else {
             //If used clicks Cancel
             
@@ -476,15 +506,6 @@ window.onload = function () {
 
 
 
-    //***********Initialize publishers and subscribers *************
-    initButtonPublisher();
-    initButtonDataPublisher();
-    initHeartbeatPublisher();
-    //initPercent();
-    initProgressSubscriber();
-    initStatusSubscriber();
-    initHeartbeatSubscriber();
-    initLightControl()
 
 
 
