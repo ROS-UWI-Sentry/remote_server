@@ -467,7 +467,7 @@ window.onload = function () {
       document.getElementById("status").innerHTML="Connected to Sentry Robot.";
       document.getElementById("btnStart").disabled='';
       msgConnection.data = "on_sanitization_page";
-
+      connection.publish(msgConnection);
     });
     
     
