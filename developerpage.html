@@ -47,7 +47,8 @@
     <div class="col-md-8">
         <div class="alert alert-success">
             <ul>
-                <li>Instructions: Use the Joystick below to control the Sentry Robot via teleop.</li>
+                <li>Instructions: Use the buttons below to control the Sentry Robot via ROS teleop.</li>
+		<li>*edit this later, each press moves the robot for a set amount of time and speed</li>
             </ul>
         </div>
     </div>
@@ -57,9 +58,9 @@
 
 
 
+<!--
 
-
-    <!-- JOYSTICK -->
+    <!- - JOYSTICK - ->
     <div class="container">
         <div class="row my-4">
         <div class="col">
@@ -70,6 +71,67 @@
         </div>
     </div>
 
+-->
+
+
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <!-- Buttons for control-->
+                <div class="container">
+                    <div class="row my-4">
+                        <div class="col text-right">
+                            <button type="button" id="btnStop" class="btn btn-danger btn-lg" >STOP</button>
+                        </div>
+                    </div>
+                </div>                    
+            </div>
+            <div class="w-100"></div>
+            <div class="col">
+                <!-- Buttons for control-->
+                <div class="container">
+                    <div class="row my-4">
+                        <div class="col text-center">
+                            <button type="button" id="btnForward" class="btn btn-success btn-lg" >Forward</button>
+                        </div>
+                    </div>
+                </div>                    
+            </div>
+            <div class="w-100"></div>
+            <div class="col">
+                <!-- Buttons for control-->
+                <div class="container">
+                    <div class="row my-4">
+                    <div class="col text-center">
+                        <button type="button" id="btnLeft" class="btn btn-primary btn-lg">Left</button>
+                    </div>
+                    </div>  
+                </div>                
+            </div>
+
+            <div class="col">
+                <!-- Buttons for control-->
+                <div class="container">
+                    <div class="row my-4">
+                    <div class="col text-center">
+                        <button type="button" id="btnRight" class="btn btn-info btn-lg">Right</button>
+                    </div>
+                    </div>  
+                </div>
+            </div>
+            <div class="w-100"></div>
+            <div class="col">
+                <!-- Buttons for control-->
+                <div class="container">
+                    <div class="row my-4">
+                    <div class="col text-center">
+                        <button type="button" id="btnReverse" class="btn btn-dark btn-lg">Reverse</button>
+                    </div>
+                    </div>  
+                </div>                     
+            </div>
+        </div>
+    </div>
 
 
 
@@ -83,7 +145,7 @@
 
     <script src="eventemitter2.min.js"></script>
     <script src="https://static.robotwebtools.org/keyboardteleopjs/current/keyboardteleop.min.js"></script>
-    <script src="//yoannmoinet.github.io/nipplejs/javascripts/nipplejs.js"></script>
+   <script src="//yoannmoinet.github.io/nipplejs/javascripts/nipplejs.js"></script> 
 
 
 

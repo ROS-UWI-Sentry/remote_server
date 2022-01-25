@@ -8,102 +8,66 @@ var ang=0;
 var stickPublisher=true;
 
 
+
+
 //this page is to provide functionality for the developer to control the robot
 
 
 
-//This function publishes the teleop
-function moveAction(linear, angular) {
-    if (linear !== undefined && angular !== undefined) {
-        twist.linear.x = linear;
-        twist.angular.z = angular;
-    } else {
-        twist.linear.x = 0;
-        twist.angular.z = 0;
-    }
+function moveStop(){
+        speed.data="+0.0000,+0.0000";
+	cmdSpeed.publish(speed);
+}
 
-    cmdVel.publish(twist);
-    
+function moveForward(){
+        speed.data="+0.1000,+0.1000";
+	cmdSpeed.publish(speed);
+}
+
+function moveLeft(){
+        speed.data="-0.1000,+0.1000";
+	cmdSpeed.publish(speed);
+}
+
+function moveRight(){
+        speed.data="+0.1000,-0.1000";
+	cmdSpeed.publish(speed);
+}
+
+function moveReverse(){
+        speed.data="-0.1000,-0.1000";
+	cmdSpeed.publish(speed);
 }
 
 //This function creates the velocity publisher
-function initVelocityPublisher() {
+function initSpeedPublisher() {
     // Init message with zero values.
-    twist = new ROSLIB.Message({
-        linear: {
-            x: 0,
-            y: 0,
-            z: 0
-        },
-        angular: {
-            x: 0,
-            y: 0,
-            z: 0
-        }
+    speed = new ROSLIB.Message({
+        data: {}
+
     });
     // Init topic object
-    cmdVel = new ROSLIB.Topic({
+    cmdSpeed = new ROSLIB.Topic({
         ros: ros,
-        //this was cmd_vel before but for turtlesim it has to be changed
-        name: 'cmd_vel',
-        messageType: 'geometry_msgs/Twist'
+        //the topic to publish to
+        name: 'ard_com_in',
+        messageType: 'std_msgs/String'
     });
     // Register publisher within ROS system
-    cmdVel.advertise();
+    cmdSpeed.advertise();
+
+    //following code listens to the buttons on the page 
+    //if they are pressed a function is called
+    //placed in this function to run when the function is called at startup
+    
+    document.getElementById("btnStop").onclick = moveStop;
+    document.getElementById("btnForward").onclick = moveForward;
+    document.getElementById("btnReverse").onclick = moveReverse;
+    document.getElementById("btnLeft").onclick = moveLeft;
+    document.getElementById("btnRight").onclick = moveRight;
 }
 
 
-
-//This function creates the joystick
-function createJoystick() {
-    // Check if joystick was aready created
-    if (manager == null) {
-        joystickContainer = document.getElementById('joystick');
-        // joystck configuration, if you want to adjust joystick, refer to:
-        // https://yoannmoinet.github.io/nipplejs/
-        var options = {
-            zone: joystickContainer,
-            position: { left: 50 + '%', top: 105 + 'px' },
-            mode: 'static',
-            size: 200,
-            color: '#0066ff',
-            restJoystick: true
-        };
-        manager = nipplejs.create(options);
-        // event listener for joystick move
-        manager.on('move', function (evt, nipple) {
-            // nipplejs returns direction is screen coordiantes
-            // we need to rotate it, that dragging towards screen top will move robot forward
-            var direction = nipple.angle.degree - 90;
-            if (direction > 180) {
-                direction = -(450 - nipple.angle.degree);
-            }
-            // convert angles to radians and scale linear and angular speed
-            // adjust if youwant robot to drvie faster or slower
-            lin = Math.cos(direction / 57.29) * nipple.distance * 0.005;
-            ang = Math.sin(direction / 57.29) * nipple.distance * 0.05;
-            // nipplejs is triggering events when joystic moves each pixel
-            // we need delay between consecutive messege publications to 
-            // prevent system from being flooded by messages
-            // events triggered earlier than 50ms after last publication will be dropped 
-            
-            //Edited the code here to keep it outputting when touching joystick
-           
-
-            if (publishImmidiately) {
-                publishImmidiately = false;
-                moveAction(lin, ang);
-                setTimeout(function () {
-                    publishImmidiately = true;
-                }, 50);
-            }
-        });
-        // event litener for joystick release, always send stop message
-        manager.on('end', function () {
-            moveAction(0, 0);
-        });
-    }
-}
 
 window.onload = function (){
 
@@ -119,7 +83,7 @@ ros = new ROSLIB.Ros({
 
 
 
-initVelocityPublisher();    
-createJoystick();
+initSpeedPublisher();    
+
 
 };
