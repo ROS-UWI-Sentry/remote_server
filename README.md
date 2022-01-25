@@ -15,13 +15,17 @@ The ROSBridge package must be installed.
 The sanitizationpage, developerpage and reports page in particular require this package.
 
 
-##Known issue and resolution
+## Known issue and resolution
 
 Using ROSBridge and roslibjs as is may work at first but after some time it may loose connection if you navigate to other pages and return. 
 See Google Drive Additional Resources: [Flashing the Jetson...](https://docs.google.com/document/d/1WZLdgXxbXff8g58E_jaLMqHgyO9Tv8HMU45z1B0EHVc/edit)
 The solution is detailed there.
-Quick solution: Search for rosbridge_websocked.launch in AGX and change unregister_timeout to a large value.
 
+Quick solution: [Issue and quick solution:...](https://github.com/RobotWebTools/rosbridge_suite/issues/298#issuecomment-842357768)
+Edit "unregister_timeout" parameter to 1000000 located in /opt/ros/melodic/share/rosbridge_server/launch
+Or search for rosbridge_websocket.launch in AGX and change unregister_timeout to a large value. 
+ 
 
 See main_control readme for more detais if necessary. 
 
+To Setup the nginx server [this](https://ubuntu.com/tutorials/install-and-configure-nginx#1-overview) can also be used 
