@@ -13,8 +13,13 @@ var stickPublisher=true;
 //this page is to provide functionality for the developer to control the robot
 
 
+function moveEmergencyStop(){
+        speed.data="+0.0000,+0.0000";
+	cmdSpeed.publish(speed);
+}
 
-function moveStop(){
+
+function moveRampDownToZero(){
         speed.data="+0.0000,+0.0000";
 	cmdSpeed.publish(speed);
 }
@@ -59,8 +64,9 @@ function initSpeedPublisher() {
     //following code listens to the buttons on the page 
     //if they are pressed a function is called
     //placed in this function to run when the function is called at startup
-    
-    document.getElementById("btnStop").onclick = moveStop;
+ 
+    document.getElementById("btnEmergencyStop").onclick = moveEmergencyStop;   
+    document.getElementById("btnRampDownToZero").onclick = moveRampDownToZero;
     document.getElementById("btnForward").onclick = moveForward;
     document.getElementById("btnReverse").onclick = moveReverse;
     document.getElementById("btnLeft").onclick = moveLeft;

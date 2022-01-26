@@ -48,7 +48,7 @@
         <div class="alert alert-success">
             <ul>
                 <li>Instructions: Use the buttons below to control the Sentry Robot via ROS teleop.</li>
-		<li>*edit this later, each press moves the robot for a set amount of time and speed</li>
+
             </ul>
         </div>
     </div>
@@ -76,12 +76,23 @@
 
     <div class="container">
         <div class="row">
+            <div class="w-100"></div>
             <div class="col">
                 <!-- Buttons for control-->
                 <div class="container">
                     <div class="row my-4">
                         <div class="col text-right">
-                            <button type="button" id="btnStop" class="btn btn-danger btn-lg" >STOP</button>
+                            <button type="button" id="btnEmergencyStop" class="btn btn-danger btn-lg" >EMERGENCY STOP</button>
+                        </div>
+                    </div>
+                </div>                    
+            </div>
+        <div class="col">
+                <!-- Buttons for control-->
+                <div class="container">
+                    <div class="row my-4">
+                        <div class="col text-right">
+                            <button type="button" id="btnRampDownToZero" class="btn btn-outline-danger btn-lg" >RAMP DOWN TO ZERO</button>
                         </div>
                     </div>
                 </div>                    
