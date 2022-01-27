@@ -19,11 +19,6 @@ function moveEmergencyStop(){
 }
 
 
-function moveRampDownToZero(){
-        speed.data="+0.0000,+0.0000";
-	cmdSpeed.publish(speed);
-}
-
 function moveForward(){
         speed.data="+0.1000,+0.1000";
 	cmdSpeed.publish(speed);
@@ -66,7 +61,6 @@ function initSpeedPublisher() {
     //placed in this function to run when the function is called at startup
  
     document.getElementById("btnEmergencyStop").onclick = moveEmergencyStop;   
-    document.getElementById("btnRampDownToZero").onclick = moveRampDownToZero;
     document.getElementById("btnForward").onclick = moveForward;
     document.getElementById("btnReverse").onclick = moveReverse;
     document.getElementById("btnLeft").onclick = moveLeft;
