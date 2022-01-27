@@ -20,23 +20,40 @@ function moveEmergencyStop(){
 
 
 function moveForward(){
-        speed.data="+0.1000,+0.1000";
-	cmdSpeed.publish(speed);
+moveEmergencyStop();
+	 setTimeout(function(){
+	 speed.data="+0.1000,+0.1000";
+	 cmdSpeed.publish(speed);
+},1500);
+
+       
 }
 
 function moveLeft(){
+	moveEmergencyStop();
+	setTimeout(function(){
         speed.data="-0.1000,+0.1000";
 	cmdSpeed.publish(speed);
+},1500);
+
 }
 
 function moveRight(){
+	moveEmergencyStop();
+	setTimeout(function(){
         speed.data="+0.1000,-0.1000";
 	cmdSpeed.publish(speed);
+},1500);
+
 }
 
 function moveReverse(){
+	moveEmergencyStop();
+	setTimeout(function(){
         speed.data="-0.1000,-0.1000";
 	cmdSpeed.publish(speed);
+},1500);
+
 }
 
 //This function creates the velocity publisher
