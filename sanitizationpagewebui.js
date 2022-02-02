@@ -363,7 +363,7 @@ function publishStopSani() {
 function publishTurnOffSani() {
     msg1.data="turn_off_sanitization";
 
-    if (confirm("Turn off Sentry?")){
+    if (confirm("Turn off Sanitization mode?")){
         brwsr.publish(msg1);
         msg3.data=false;
         lightControl.publish(msg3);

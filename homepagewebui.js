@@ -10,7 +10,7 @@ function initButtonPublisher() {
     // Init topic object
     brwsr = new ROSLIB.Topic({
         ros : ros,
-        name: '/brwsrButtonsData',
+        name: '/sentry_control_topic',
         messageType: 'std_msgs/String'
     });
     // Init message.
