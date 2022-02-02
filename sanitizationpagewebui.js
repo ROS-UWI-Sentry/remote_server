@@ -189,12 +189,25 @@ function parseMessageReceived(message){
     if (message.data=="human_detected_true"){
         alert("A human was detected! \r\nThe UV lights are off \r\nPlease ensure that there is no one in the room. \r\nResume the sanitization when the room is confirmed empty.");
         document.getElementById("status").innerHTML="A human was found in the room, restart when the room is confirmed empty."
+//only allow resumption of activities until human is cleared from the room
+        document.getElementById("btnStart").disabled='disabled';
+        document.getElementById("btnPause").disabled='disabled';
+        document.getElementById("btnStop").disabled='';
+/*
         //the text value on the start button is changed from start to continue
         //can't refresh the page because we are continueing the same sanitization event
         document.getElementById("btnStart").innerHTML="Continue Room Stanitizing";
         document.getElementById("btnStart").disabled='';
         document.getElementById("btnPause").disabled='';
         document.getElementById("btnStop").disabled='';    
+*/
+    }else if(message.data=="human_detected_false") {
+        //the text value on the start button is changed from start to continue
+        //can't refresh the page because we are continueing the same sanitization event
+        document.getElementById("btnStart").innerHTML="Continue Room Stanitizing";
+        document.getElementById("btnStart").disabled='';
+        document.getElementById("btnPause").disabled='';
+        document.getElementById("btnStop").disabled='';            
     }else if(message.data=="Sanitization Complete") {
         document.getElementById("status").innerHTML=message.data;
         console.log(message.data);
