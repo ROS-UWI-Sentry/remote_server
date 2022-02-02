@@ -489,7 +489,7 @@ window.onload = function () {
       //only do this if the user didn't initiate the shutdown
       if(userInitiatedShutdown==0){
         //When ROSBridge closes, pop up asking if to refresh the page or return home
-        confirmMessage = confirm("Error! Not connected to Sentry Robot! \r\nPress Ok to retry. \r\nPress Cancel to exit and return home. \r\nIf you Cancel Please wait 1 minute before entering the room with the Sentry robot, then restart it physically.");
+        confirmMessage = confirm("Error! Not connected to Sentry Robot! \r\nPress Ok to retry. \r\nPress Cancel to exit and return home. \r\nIf you cannot reconnect, please wait 1 minute before entering the room with the Sentry robot, then restart it physically.");
         if (confirmMessage==true){
             //If user clicks OK
                 document.location.href= "sanitizationpage.html";         

@@ -65,7 +65,7 @@ window.onload = function () {
     
     ros.on('close', function() {
       console.log('Connection to websocket server closed.');
-      confirmMessage = confirm("Error! Not connected to Sentry Robot! \r\nPress Ok to retry. \r\nIf you cannot recconect please restart the Sentry Robot physically. \n\ Press cancel to contue without conncecting. (You can always refresh to retry connecting.)");
+      confirmMessage = confirm("Error! Not connected to Sentry Robot! \r\nPress Ok to retry.\r\n\Press cancel to continue without conncecting. (You can always refresh to retry connecting.) \r\nIf you cannot recconect please wait 1 minute before entering the room with the Sentry robot, then restart it physically.");
       if (confirmMessage==true){
           //If user clicks OK
           document.location.href= "homepage.html";
