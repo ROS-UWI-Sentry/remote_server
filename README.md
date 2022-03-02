@@ -29,3 +29,7 @@ Or search for rosbridge_websocket.launch in AGX and change unregister_timeout to
 See main_control readme for more detais if necessary. 
 
 To Setup the nginx server [this](https://ubuntu.com/tutorials/install-and-configure-nginx#1-overview) can also be used 
+
+Important note for making edits. If the server is set up with NGINX when you make edits your browser may not detect the javascript changes because the website is cached. You would have to manually delete the cache on the browser or edit the src section on the html page like this "homepagewebui.js?3" each time you want to test the edit. I do not know the correct way around this issue.     
+    
+
