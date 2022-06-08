@@ -14,6 +14,8 @@ The ROSBridge package must be installed.
 
 The sanitizationpage, developerpage and reports page in particular require this package.
 
+# Important
+There are popups that are used to disable the buttons on the page, if switched these popups disappear and may allow the user to access the buttons. Future upgrade.
 
 ## Known issue and resolution
 
